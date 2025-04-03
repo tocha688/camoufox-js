@@ -1,4 +1,4 @@
-import { LOCAL_DATA, GitHubDownloader, webdl } from './pkgman.js';
+import { GitHubDownloader, webdl, PACKAGE_DATA } from './pkgman.js';
 import { LeakWarning } from './warnings.js';
 import {
     InvalidLocale,
@@ -23,7 +23,7 @@ class Locale {
         public language: string,
         public region?: string,
         public script?: string
-    ) {}
+    ) { }
 
     asString(): string {
         if (this.region) {
@@ -54,7 +54,7 @@ class Geolocation {
         public latitude: number,
         public timezone: string,
         public accuracy?: number
-    ) {}
+    ) { }
 
     public asConfig(): Record<string, any> {
         const data: Record<string, any> = {
@@ -147,7 +147,7 @@ function joinUnique(seq: string[]): string {
     return seq.filter(x => !seen.has(x) && seen.add(x)).join(', ');
 }
 
-const MMDB_FILE = path.join(LOCAL_DATA.toString(), 'GeoLite2-City.mmdb');
+const MMDB_FILE = path.join(PACKAGE_DATA.toString(), 'GeoLite2-City.mmdb');
 const MMDB_REPO = "P3TERX/GeoLite.mmdb";
 
 class MaxMindDownloader extends GitHubDownloader {
@@ -171,7 +171,7 @@ export function geoipAllowed(): void {
     }
 }
 
-export async function downloadMMDB(): Promise<void> {
+export async function downloadMMDB(mmdb_file = MMDB_FILE): Promise<void> {
     geoipAllowed();
 
     if (getAsBooleanFromENV('PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD', false)) {
@@ -180,29 +180,32 @@ export async function downloadMMDB(): Promise<void> {
     }
 
     const assetUrl = await (new MaxMindDownloader(MMDB_REPO).getAsset());
-
-    const fileStream = fs.createWriteStream(MMDB_FILE);
+    const dir = path.dirname(mmdb_file);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+    const fileStream = fs.createWriteStream(mmdb_file);
     await webdl(assetUrl, 'Downloading GeoIP database', true, fileStream);
 }
 
-export function removeMMDB(): void {
-    if (!fs.existsSync(MMDB_FILE)) {
+export function removeMMDB(mmdb_file = MMDB_FILE): void {
+    if (!fs.existsSync(mmdb_file)) {
         console.log("GeoIP database not found.");
         return;
     }
 
-    fs.unlinkSync(MMDB_FILE);
+    fs.unlinkSync(mmdb_file);
     console.log("GeoIP database removed.");
 }
 
-export async function getGeolocation(ip: string): Promise<Geolocation> {
-    if (!fs.existsSync(MMDB_FILE)) {
-        await downloadMMDB();
+export async function getGeolocation(ip: string, mmdb_file = MMDB_FILE): Promise<Geolocation> {
+    if (!fs.existsSync(mmdb_file)) {
+        await downloadMMDB(mmdb_file);
     }
 
     validateIP(ip);
 
-    const reader = await maxmind.open<CityResponse>(MMDB_FILE);
+    const reader = await maxmind.open<CityResponse>(mmdb_file);
 
     const resp = reader.get(ip)!;
     const isoCode = resp.country?.iso_code.toUpperCase();
@@ -223,7 +226,7 @@ export async function getGeolocation(ip: string): Promise<Geolocation> {
 }
 
 async function getUnicodeInfo(): Promise<any> {
-    const data = await fs.promises.readFile(path.join(import.meta.dirname, 'data-files', 'territoryInfo.xml'));
+    const data = await fs.promises.readFile(path.join(import.meta?.dirname ?? __dirname, 'data-files', 'territoryInfo.xml'));
     const parser = new xml2js.Parser();
     return parser.parseStringPromise(data);
 }

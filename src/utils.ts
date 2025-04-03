@@ -182,7 +182,7 @@ function getScreenCons(headless?: boolean): Screen | null {
 }
 
 function updateFonts(config: Record<string, any>, targetOS: string): void {
-    const fontsPath = join(import.meta.dirname, 'data-files', 'fonts.json');
+    const fontsPath = join(import.meta?.dirname ?? __dirname, 'data-files', 'fonts.json');
     const fonts = JSON.parse(readFileSync(fontsPath, 'utf-8'))[targetOS];
 
     if (config.fonts) {
@@ -328,6 +328,7 @@ export interface LaunchOptions {
      * Pass the target IP address to use, or `true` to find the IP address automatically.
      */
     geoip?: string | boolean;
+    geoip_file?: string;
 
     /** Humanize the cursor movement.
      * Takes either `true`, or the MAX duration in seconds of the cursor movement.
@@ -424,14 +425,14 @@ function getProxyUrl(proxy: PlaywrightLaunchOptions['proxy'] | string): URL {
     const { server, username, password } = proxy;
     let url;
     try {
-      // new URL('127.0.0.1:8080') throws
-      // new URL('localhost:8080') fails to parse host or protocol
-      // In both of these cases, we need to try re-parse URL with `http://` prefix.
-      url = new URL(server);
-      if (!url.host || !url.protocol)
-        url = new URL('http://' + server);
+        // new URL('127.0.0.1:8080') throws
+        // new URL('localhost:8080') fails to parse host or protocol
+        // In both of these cases, we need to try re-parse URL with `http://` prefix.
+        url = new URL(server);
+        if (!url.host || !url.protocol)
+            url = new URL('http://' + server);
     } catch (e) {
-      url = new URL('http://' + server);
+        url = new URL('http://' + server);
     }
 
     if (username) url.username = username;
@@ -449,6 +450,7 @@ export async function launchOptions({
     disable_coop,
     webgl_config,
     geoip,
+    geoip_file,
     humanize,
     locale,
     addons,
@@ -594,7 +596,7 @@ export async function launchOptions({
     const proxyUrl = proxy ? getProxyUrl(proxy) : undefined;
 
     // Set geolocation
-    if (geoip){
+    if (geoip) {
         geoipAllowed()
 
         // Find the user's IP address
@@ -610,7 +612,7 @@ export async function launchOptions({
             }
         }
 
-        const geolocation = await getGeolocation(geoip)
+        const geolocation = await getGeolocation(geoip, geoip_file)
         config = { ...config, ...geolocation.asConfig() }
     }
 
@@ -709,7 +711,7 @@ export async function launchOptions({
         ...getEnvVars(config, targetOS),
         ...process.env,
     }
-    
+
     // Prepare the executable path
     if (executable_path) {
         executable_path = executable_path.toString();
@@ -726,7 +728,7 @@ export async function launchOptions({
             server: proxyUrl.origin,
             username: proxyUrl.username,
             password: proxyUrl.password,
-            bypass: typeof proxy === 'string' ? undefined : proxy.bypass, 
+            bypass: typeof proxy === 'string' ? undefined : proxy.bypass,
         } : undefined,
         "headless": headless,
         ...launch_options,

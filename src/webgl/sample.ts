@@ -4,7 +4,7 @@ import sqlite from 'sqlite3';
 const { Database } = sqlite;
 
 // Get database path relative to this file
-const DB_PATH = path.join(import.meta.dirname, '..' , 'data-files', 'webgl_data.db');
+const DB_PATH = path.join(import.meta?.dirname ?? __dirname, '..' , 'data-files', 'webgl_data.db');
 
 interface WebGLData {
     vendor: string;

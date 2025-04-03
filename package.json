@@ -1,5 +1,5 @@
 {
-  "name": "camoufox-js",
+  "name": "camoufox-ts",
   "version": "0.3.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,9 +17,9 @@
   "author": "",
   "license": "ISC",
   "description": "Experimental JS port of Camoufox for Python.",
-  "packageManager": "yarn@4.6.0",
   "dependencies": {
     "adm-zip": "^0.5.16",
+    "better-sqlite3": "^11.9.1",
     "commander": "^13.1.0",
     "fingerprint-generator": "^2.1.62",
     "impit": "^0.2.1",
@@ -29,11 +29,18 @@
     "playwright": "^1.50.1",
     "progress": "^2.0.3",
     "sqlite3": "^5.1.7",
+    "typescript": "^5.8.2",
     "ua-parser-js": "^2.0.2",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@types/node": "^22.13.2",
     "rimraf": "^6.0.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "sqlite3"
+    ]
   }
 }
