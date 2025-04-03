@@ -1,6 +1,6 @@
 {
-  "name": "camoufox-ts",
-  "version": "0.3.0",
+  "name": "camoufox",
+  "version": "0.1.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -13,13 +13,25 @@
     "dist"
   ],
   "type": "module",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "Experimental JS port of Camoufox for Python.",
+  "keywords": [
+    "camoufox",
+    "fingerprint",
+    "playwright",
+    "anti-detection"
+  ],
+  "author": "tocha688",
+  "license": "MIT",
+  "description": "JavaScript port of Camoufox - a tool for Firefox anti-fingerprinting and browser automation.",
+  "homepage": "https://github.com/tocha688/camoufox-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tocha688/camoufox-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tocha688/camoufox-js/issues"
+  },
   "dependencies": {
     "adm-zip": "^0.5.16",
-    "better-sqlite3": "^11.9.1",
     "commander": "^13.1.0",
     "fingerprint-generator": "^2.1.62",
     "impit": "^0.2.1",
@@ -39,7 +51,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "better-sqlite3",
       "sqlite3"
     ]
   }

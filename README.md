@@ -5,7 +5,7 @@ This is the JavaScript client for Camoufox. It is a port of the Python wrapper (
 ## Installation
 
 ```bash
-npm install camoufox-js
+npm install camoufox-ts
 ```
 
 ## More info
