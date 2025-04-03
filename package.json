@@ -1,6 +1,6 @@
 {
   "name": "camoufox",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -40,6 +40,7 @@
     "maxmind": "^4.3.24",
     "playwright": "^1.50.1",
     "progress": "^2.0.3",
+    "sql.js": "^1.13.0",
     "sqlite3": "^5.1.7",
     "typescript": "^5.8.2",
     "ua-parser-js": "^2.0.2",
