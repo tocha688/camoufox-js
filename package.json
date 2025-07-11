@@ -1,6 +1,6 @@
 {
   "name": "camoufox",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -34,7 +34,7 @@
     "adm-zip": "^0.5.16",
     "commander": "^13.1.0",
     "fingerprint-generator": "^2.1.62",
-    "impit": "^0.2.1",
+    "impit": "^0.5.2",
     "js-yaml": "^4.1.0",
     "language-tags": "^2.0.1",
     "maxmind": "^4.3.24",
