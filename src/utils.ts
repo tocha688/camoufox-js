@@ -17,7 +17,7 @@ import { join } from 'path';
 import { UAParser } from 'ua-parser-js';
 import { Fingerprint, FingerprintGeneratorOptions } from 'fingerprint-generator';
 
-import { LaunchOptions as PlaywrightLaunchOptions } from 'playwright';
+import { LaunchOptions as PlaywrightLaunchOptions } from 'playwright-core';
 
 type Screen = FingerprintGeneratorOptions['screen'];
 
@@ -269,7 +269,7 @@ async function asyncAttachVD(browser: any, virtualDisplay?: VirtualDisplay): Pro
     const originalClose = browser.close;
 
     browser.close = async (...args: any[]) => {
-        await originalClose(...args);
+        await originalClose.apply(browser, ...args);
         if (virtualDisplay) {
             virtualDisplay.kill();
         }
@@ -282,7 +282,6 @@ async function asyncAttachVD(browser: any, virtualDisplay?: VirtualDisplay): Pro
 
 
 export function syncAttachVD(browser: any, virtualDisplay?: VirtualDisplay | null): any {
-    return browser;
     /**
      * Attaches the virtual display to the sync browser cleanup
      */
@@ -293,7 +292,7 @@ export function syncAttachVD(browser: any, virtualDisplay?: VirtualDisplay | nul
     const originalClose = browser.close;
 
     browser.close = (...args: any[]) => {
-        originalClose(...args);
+        originalClose.apply(browser, ...args);
         if (virtualDisplay) {
             virtualDisplay.kill();
         }
