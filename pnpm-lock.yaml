@@ -30,7 +30,7 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
       maxmind:
-        specifier: ^4.3.28
+        specifier: ^4.3.24
         version: 4.3.28
       playwright-core:
         specifier: ^1.54.1

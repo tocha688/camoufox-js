@@ -12,7 +12,7 @@ import {
     UnsupportedArchitecture,
     UnsupportedOS,
     UnsupportedVersion,
-} from './exceptions.js' 
+} from './exceptions.js'
 import AdmZip from 'adm-zip';
 import * as yaml from 'js-yaml';
 import ProgressBar from 'progress';
@@ -156,13 +156,15 @@ export class CamoufoxFetcher extends GitHubDownloader {
     _version_obj?: Version;
     pattern: RegExp;
     _url?: string;
+    installDir: PathLike;
 
-    constructor() {
+    constructor(installDir: PathLike = INSTALL_DIR) {
         super("daijro/camoufox");
         this.arch = CamoufoxFetcher.getPlatformArch();
         this.pattern = new RegExp(`camoufox-(.+)-(.+)-${OS_NAME}\\.${this.arch}\\.zip`);
+        this.installDir = installDir
     }
-    
+
     async init() {
         await this.fetchLatest();
     }
@@ -210,39 +212,39 @@ export class CamoufoxFetcher extends GitHubDownloader {
 
     async extractZip(zipFile: Buffer): Promise<void> {
         const zip = AdmZip(zipFile);
-        zip.extractAllTo(INSTALL_DIR.toString(), true);
+        zip.extractAllTo(this.installDir.toString(), true);
     }
 
-    static cleanup(): boolean {
-        if (fs.existsSync(INSTALL_DIR)) {
-            fs.rmSync(INSTALL_DIR, { recursive: true });
+    static cleanup(installDir: PathLike = INSTALL_DIR): boolean {
+        if (fs.existsSync(installDir)) {
+            fs.rmSync(installDir, { recursive: true });
             return true;
         }
         return false;
     }
 
     setVersion(): void {
-        fs.writeFileSync(path.join(INSTALL_DIR.toString(), 'version.json'), JSON.stringify({ version: this.version, release: this.release }));
+        fs.writeFileSync(path.join(this.installDir.toString(), 'version.json'), JSON.stringify({ version: this.version, release: this.release }));
     }
 
     async install(): Promise<void> {
         await this.init();
-        await CamoufoxFetcher.cleanup();
+        await CamoufoxFetcher.cleanup(this.installDir);
         try {
-            fs.mkdirSync(INSTALL_DIR, { recursive: true });
+            fs.mkdirSync(this.installDir, { recursive: true });
 
             const zipFile = await webdl(this.url, 'Downloading Camoufox...', true);
             await this.extractZip(zipFile);
             this.setVersion();
 
             if (OS_NAME !== 'win') {
-                execSync(`chmod -R 755 ${INSTALL_DIR}`);
+                execSync(`chmod -R 755 ${this.installDir}`);
             }
 
             console.log('Camoufox successfully installed.');
         } catch (e) {
             console.error(`Error installing Camoufox: ${e}`);
-            await CamoufoxFetcher.cleanup();
+            await CamoufoxFetcher.cleanup(this.installDir);
             throw e;
         }
     }
@@ -291,14 +293,14 @@ export function installedVerStr(): string {
 }
 
 
-export function camoufoxPath(downloadIfMissing: boolean = true): PathLike {
+export function camoufoxPath(installDir: PathLike = INSTALL_DIR, downloadIfMissing: boolean = true): PathLike {
     // Ensure the directory exists and is not empty
-    if (!fs.existsSync(INSTALL_DIR) || fs.readdirSync(INSTALL_DIR).length === 0) {
+    if (!fs.existsSync(installDir) || fs.readdirSync(installDir).length === 0) {
         if (!downloadIfMissing) {
-            throw new Error(`Camoufox executable not found at ${INSTALL_DIR}`);
+            throw new Error(`Camoufox executable not found at ${installDir}`);
         }
-    } else if (fs.existsSync(INSTALL_DIR) && Version.isSupportedPath(INSTALL_DIR)) {
-        return INSTALL_DIR;
+    } else if (fs.existsSync(installDir) && Version.isSupportedPath(installDir)) {
+        return installDir;
     } else {
         if (!downloadIfMissing) {
             throw new UnsupportedVersion("Camoufox executable is outdated.");
@@ -307,24 +309,27 @@ export function camoufoxPath(downloadIfMissing: boolean = true): PathLike {
 
     // Install and recheck
     const fetcher = new CamoufoxFetcher();
-    fetcher.install().then(() => camoufoxPath());
-    return INSTALL_DIR;
+    fetcher.install().then(() => camoufoxPath(installDir, downloadIfMissing));
+    return installDir;
 }
 
 
-export function getPath(file: string): string {
+export function getPath(file: string, installDir: PathLike = INSTALL_DIR): string {
     if (OS_NAME === 'mac') {
-        return path.resolve(camoufoxPath().toString(), 'Camoufox.app', 'Contents', 'Resources', file);
+        return path.resolve(camoufoxPath(installDir).toString(), 'Camoufox.app', 'Contents', 'Resources', file);
     }
-    return path.join(camoufoxPath().toString(), file);
+    return path.join(camoufoxPath(installDir).toString(), file);
 }
 
+export function getLaunchPath(installDir: PathLike = INSTALL_DIR){
+    return getPath(LAUNCH_FILE[OS_NAME], installDir);
+}
 
-export function launchPath(): string {
-    const launchPath = getPath(LAUNCH_FILE[OS_NAME]);
+export function launchPath(installDir: PathLike = INSTALL_DIR): string {
+    const launchPath = getPath(LAUNCH_FILE[OS_NAME], installDir);
     if (!fs.existsSync(launchPath)) {
         throw new CamoufoxNotInstalled(
-            `Camoufox is not installed at ${camoufoxPath()}. Please run \`camoufox fetch\` to install.`
+            `Camoufox is not installed at ${launchPath}. Please run \`camoufox fetch\` to install.`
         );
     }
     return launchPath;
