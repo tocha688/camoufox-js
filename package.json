@@ -1,6 +1,6 @@
 {
   "name": "camoufox",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -34,14 +34,14 @@
     "adm-zip": "^0.5.16",
     "commander": "^13.1.0",
     "fingerprint-generator": "^2.1.62",
-    "impit": "^0.5.2",
+    "got": "^14.4.7",
+    "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "language-tags": "^2.0.1",
     "maxmind": "^4.3.24",
     "playwright": "^1.50.1",
     "progress": "^2.0.3",
     "sql.js": "^1.13.0",
-    "sqlite3": "^5.1.7",
     "typescript": "^5.8.2",
     "ua-parser-js": "^2.0.2",
     "xml2js": "^0.6.2"

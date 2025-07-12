@@ -1,9 +1,8 @@
-import { Impit } from 'impit';
-import * as https from 'https';
-import { URL } from 'url';
+import got from 'got';
+import { HttpsProxyAgent } from 'hpagent';
 
-export class InvalidIP extends Error {}
-export class InvalidProxy extends Error {}
+export class InvalidIP extends Error { }
+export class InvalidProxy extends Error { }
 
 export interface Proxy {
     server: string;
@@ -82,17 +81,25 @@ export async function publicIP(proxy?: string): Promise<string> {
 
     for (const url of URLS) {
         try {
-            const impit = new Impit({
-                proxyUrl: proxy,
-                timeout: 5000,
-            })
-            const response = await impit.fetch(url);
+            const response = await got.get(url, {
+                agent: {
+                    https: new HttpsProxyAgent({
+                        keepAlive: true,
+                        keepAliveMsecs: 1000,
+                        maxSockets: 256,
+                        maxFreeSockets: 256,
+                        scheduling: 'lifo',
+                        proxy: proxy
+                    })
+                },
+                responseType: "text"
+            });
 
             if (!response.ok) {
                 continue;
             }
 
-            const ip = (await response.text()).trim()
+            const ip = response.body.trim()
             validateIP(ip);
             return ip;
         } catch (error) {
