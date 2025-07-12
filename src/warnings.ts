@@ -1,8 +1,8 @@
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadYaml } from './pkgman.js';
+import { loadYaml, LOCAL_DATA } from './pkgman.js';
 
-const WARNINGS_DATA = loadYaml(join(import.meta?.dirname ?? __dirname, 'data-files', 'warnings.yml'));
+const WARNINGS_DATA = loadYaml(join(LOCAL_DATA.toString(), 'warnings.yml'));
 
 export class LeakWarning extends Error {
     constructor(message: string) {

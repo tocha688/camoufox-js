@@ -1,10 +1,10 @@
-import { OS_ARCH_MATRIX } from '../pkgman.js';
+import { LOCAL_DATA, OS_ARCH_MATRIX } from '../pkgman.js';
 import path from 'node:path';
 import fs from 'node:fs';
 import initSqlJs from 'sql.js';
 
 // 获取相对于此文件的数据库路径
-const DB_PATH = path.join(import.meta?.dirname ?? __dirname, '..', 'data-files', 'webgl_data.db');
+const DB_PATH = path.join(LOCAL_DATA.toString(), 'webgl_data.db');
 
 interface WebGLData {
     vendor: string;

@@ -1,12 +1,11 @@
 {
   "name": "camoufox",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rimraf dist && tsc && npm run copy-files",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "copy-files": "cp -r src/data-files dist/data-files"
+    "build": "rimraf dist && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": "dist/__main__.js",
   "files": [

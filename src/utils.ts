@@ -8,7 +8,7 @@ import { InvalidOS, InvalidPropertyType, NonFirefoxFingerprint, UnknownProperty 
 import { fromBrowserforge, generateFingerprint } from './fingerprints.js';
 import { publicIP, validIPv4, validIPv6 } from './ip.js';
 import { geoipAllowed, getGeolocation, handleLocales } from './locale.js';
-import { OS_NAME, getPath, installedVerStr, launchPath } from './pkgman.js';
+import { LOCAL_DATA, OS_NAME, getPath, installedVerStr, launchPath } from './pkgman.js';
 import { VirtualDisplay } from './virtdisplay.js';
 import { LeakWarning } from './warnings.js';
 import { sampleWebGL } from './webgl/sample.js';
@@ -182,7 +182,7 @@ function getScreenCons(headless?: boolean): Screen | null {
 }
 
 function updateFonts(config: Record<string, any>, targetOS: string): void {
-    const fontsPath = join(import.meta?.dirname ?? __dirname, 'data-files', 'fonts.json');
+    const fontsPath = join(LOCAL_DATA.toString(), 'fonts.json');
     const fonts = JSON.parse(readFileSync(fontsPath, 'utf-8'))[targetOS];
 
     if (config.fonts) {

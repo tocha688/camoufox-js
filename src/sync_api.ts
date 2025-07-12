@@ -12,7 +12,7 @@ import { checkBrowser } from './browser.js';
 export async function Camoufox(launch_options: LaunchOptions) {
     const { headless, ...launchOptions } = launch_options;
     await checkBrowser(launchOptions)
-    console.log(launchOptions.executable_path)
+    // console.log(launchOptions.executable_path)
     return NewBrowser(firefox, headless, {}, false, false, launchOptions);
 }
 

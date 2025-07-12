@@ -1,4 +1,4 @@
-import { GitHubDownloader, webdl, PACKAGE_DATA, INSTALL_DIR } from './pkgman.js';
+import { GitHubDownloader, webdl, INSTALL_DIR, LOCAL_DATA } from './pkgman.js';
 import { LeakWarning } from './warnings.js';
 import {
     InvalidLocale,
@@ -226,7 +226,7 @@ export async function getGeolocation(ip: string, mmdb_file = MMDB_FILE): Promise
 }
 
 async function getUnicodeInfo(): Promise<any> {
-    const data = await fs.promises.readFile(path.join(import.meta?.dirname ?? __dirname, 'data-files', 'territoryInfo.xml'));
+    const data = await fs.promises.readFile(path.join(LOCAL_DATA.toString(), 'territoryInfo.xml'));
     const parser = new xml2js.Parser();
     return parser.parseStringPromise(data);
 }
