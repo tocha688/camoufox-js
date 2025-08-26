@@ -2,12 +2,13 @@
 
 import { DefaultAddons, maybeDownloadAddons } from './addons.js';
 import { ALLOW_GEOIP, downloadMMDB, removeMMDB } from './locale.js';
-import { INSTALL_DIR, CamoufoxFetcher, installedVerStr } from './pkgman.js';
+import { INSTALL_DIR, CamoufoxFetcher, installedVerStr, LAUNCH_FILE, OS_NAME } from './pkgman.js';
 import { Command } from 'commander';
 
 import { Camoufox } from './sync_api.js';
 import { existsSync, fstat, rmSync } from 'fs';
 import { getAsBooleanFromENV } from './utils.js';
+import path from 'path';
 
 class CamoufoxUpdate extends CamoufoxFetcher {
     currentVerStr: string | null;
@@ -42,18 +43,33 @@ class CamoufoxUpdate extends CamoufoxFetcher {
     }
 
     async update(): Promise<void> {
-        if (!this.isUpdateNeeded()) {
-            console.log("Camoufox binaries up to date!");
-            console.log(`Current version: v${this.currentVerStr}`);
-            return;
-        }
+        try {
+            if (!this.isUpdateNeeded()) {
+                console.log("Camoufox binaries up to date!");
+                console.log(`Current version: v${this.currentVerStr}`);
+                return;
+            }
 
-        if (this.currentVerStr !== null) {
-            console.log(`Updating Camoufox binaries from v${this.currentVerStr} => v${this.verstr}`, "yellow");
-        } else {
-            console.log(`Fetching Camoufox binaries...`);
+            if (this.currentVerStr !== null) {
+                console.log(`Updating Camoufox binaries from v${this.currentVerStr} => v${this.verstr}`, "yellow");
+            } else {
+                console.log(`Fetching Camoufox binaries...`);
+            }
+            await this.install();
+        } finally {
+            const epath = path.join(this.installDir.toString(), LAUNCH_FILE[OS_NAME])
+            console.log(`Camoufox install dir: ${this.installDir}`);
+            console.log(`Camoufox executable path: ${epath}`);
+            //如果是linux和mac系统，设置权限
+            if (process.platform !== 'win32') {
+                //提示设置权限
+                console.log(`\n⚠️  Permission Setup Required:`);
+                console.log(`Please run the following command to add execute permissions to Camoufox:`);
+                console.log(`\x1b[33mchmod +x "${epath}"\x1b[0m`);
+                console.log(`Or set permissions for the entire directory:`);
+                console.log(`\x1b[33mchmod -R 755 "${this.installDir}"\x1b[0m\n`);
+            }
         }
-        await this.install();
     }
 
     async cleanup(): Promise<boolean> {
@@ -94,10 +110,10 @@ program
     .command('test')
     .argument('[url]', 'URL to open', null)
     .action(async (url) => {
-        const browser = await Camoufox({ 
-            headless: false, 
-            env: process.env as Record<string, string>, 
-            config: { showcursor: true }, 
+        const browser = await Camoufox({
+            headless: false,
+            env: process.env as Record<string, string>,
+            config: { showcursor: true },
             humanize: 0.5,
             geoip: true,
         });
