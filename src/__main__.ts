@@ -12,8 +12,8 @@ import { getAsBooleanFromENV } from './utils.js';
 class CamoufoxUpdate extends CamoufoxFetcher {
     currentVerStr: string | null;
 
-    private constructor() {
-        super();
+    private constructor(proxy?: string) {
+        super(INSTALL_DIR, proxy);
         this.currentVerStr = null;
         try {
             this.currentVerStr = installedVerStr();
@@ -26,8 +26,8 @@ class CamoufoxUpdate extends CamoufoxFetcher {
         }
     }
 
-    static async create(): Promise<CamoufoxUpdate> {
-        const updater = new CamoufoxUpdate();
+    static async create(proxy?: string): Promise<CamoufoxUpdate> {
+        const updater = new CamoufoxUpdate(proxy);
         await updater.init();
         return updater;
     }
@@ -70,8 +70,9 @@ const program = new Command();
 
 program
     .command('fetch')
-    .action(async () => {
-        const updater = await CamoufoxUpdate.create();
+    .option('--proxy <proxy>', 'Use proxy for downloading (e.g., http://127.0.0.1:8080)')
+    .action(async (options) => {
+        const updater = await CamoufoxUpdate.create(options.proxy);
         await updater.update();
         if (ALLOW_GEOIP) {
             downloadMMDB();

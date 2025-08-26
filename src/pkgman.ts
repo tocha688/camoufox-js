@@ -17,6 +17,8 @@ import AdmZip from 'adm-zip';
 import * as yaml from 'js-yaml';
 import ProgressBar from 'progress';
 import { Writable } from 'stream';
+import { HttpsProxyAgent } from 'hpagent';
+import got, { OptionsOfJSONResponseBody } from 'got';
 
 const ARCH_MAP: { [key: string]: string } = {
     'x64': 'x86_64',
@@ -116,10 +118,12 @@ const [VERSION_MIN, VERSION_MAX] = Version.buildMinMax();
 export class GitHubDownloader {
     githubRepo: string;
     apiUrl: string;
+    proxy?: string;
 
-    constructor(githubRepo: string) {
+    constructor(githubRepo: string, proxy?: string) {
         this.githubRepo = githubRepo;
         this.apiUrl = `https://api.github.com/repos/${githubRepo}/releases`;
+        this.proxy = proxy;
     }
 
     checkAsset(asset: any): any {
@@ -131,23 +135,44 @@ export class GitHubDownloader {
     }
 
     async getAsset(): Promise<any> {
-        const resp = await fetch(this.apiUrl);
-        if (!resp.ok) {
-            throw new Error(`Failed to fetch releases from ${this.apiUrl}`);
+        let gotOptions: OptionsOfJSONResponseBody = {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
+            },
+            responseType: 'json'
+        };
+
+        // 如果有代理配置，设置代理agent
+        if (this.proxy) {
+            gotOptions.agent = {
+                https: new HttpsProxyAgent({
+                    keepAlive: true,
+                    keepAliveMsecs: 1000,
+                    maxSockets: 256,
+                    maxFreeSockets: 256,
+                    scheduling: 'lifo',
+                    proxy: this.proxy
+                })
+            };
         }
 
-        const releases = await resp.json();
+        try {
+            const response = await got.get(this.apiUrl, gotOptions);
+            const releases = response.body as unknown as any[];
 
-        for (const release of releases) {
-            for (const asset of release.assets) {
-                const data = this.checkAsset(asset);
-                if (data) {
-                    return data;
+            for (const release of releases) {
+                for (const asset of release.assets) {
+                    const data = this.checkAsset(asset);
+                    if (data) {
+                        return data;
+                    }
                 }
             }
-        }
 
-        this.missingAssetError();
+            this.missingAssetError();
+        } catch (error) {
+            throw new Error(`Failed to fetch releases from ${this.apiUrl}: ${error}`);
+        }
     }
 }
 
@@ -158,8 +183,8 @@ export class CamoufoxFetcher extends GitHubDownloader {
     _url?: string;
     installDir: PathLike;
 
-    constructor(installDir: PathLike = INSTALL_DIR) {
-        super("daijro/camoufox");
+    constructor(installDir: PathLike = INSTALL_DIR, proxy?: string) {
+        super("daijro/camoufox", proxy);
         this.arch = CamoufoxFetcher.getPlatformArch();
         this.pattern = new RegExp(`camoufox-(.+)-(.+)-${OS_NAME}\\.${this.arch}\\.zip`);
         this.installDir = installDir
@@ -321,7 +346,7 @@ export function getPath(file: string, installDir: PathLike = INSTALL_DIR): strin
     return path.join(camoufoxPath(installDir).toString(), file);
 }
 
-export function getLaunchPath(installDir: PathLike = INSTALL_DIR){
+export function getLaunchPath(installDir: PathLike = INSTALL_DIR) {
     return getPath(LAUNCH_FILE[OS_NAME], installDir);
 }
 
