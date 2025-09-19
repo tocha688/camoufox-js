@@ -35,14 +35,17 @@ export async function NewBrowser(
     }
 
     if (!fromOptions || Object.keys(fromOptions).length === 0) {
-         fromOptions = await launchOptions({ debug, ...launch_options });
+        fromOptions = await launchOptions({ debug, ...launch_options });
     }
 
     if (persistentContext) {
         const context = await playwright.launchPersistentContext('~/.crawlee/persistent-user-data-dir', fromOptions);
         return syncAttachVD(context, virtualDisplay);
     }
-
+    if (launch_options.data_dir) {
+        const browser = await playwright.launchPersistentContext(launch_options.data_dir, fromOptions);
+        return syncAttachVD(browser, virtualDisplay);
+    }
     const browser = await playwright.launch(fromOptions);
     return syncAttachVD(browser, virtualDisplay);
 }
