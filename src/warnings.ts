@@ -19,7 +19,7 @@ export class LeakWarning extends Error {
             warning += '\nIf this is intentional, pass `iKnowWhatImDoing=true`.';
         }
 
-        const currentModule = import.meta?.dirname
+        const currentModule = __dirname
         const originalStackTrace = Error.prepareStackTrace;
         Error.prepareStackTrace = (_, stack) => stack;
         const err = new Error();

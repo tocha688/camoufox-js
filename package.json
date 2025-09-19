@@ -4,15 +4,21 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rimraf dist && tsc",
+    "build": "tsup",
+    "build:tsc": "rimraf dist && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+   "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
   },
   "bin": "dist/__main__.js",
   "files": [
     "dist",
     "data-files"
   ],
-  "type": "module",
   "keywords": [
     "camoufox",
     "fingerprint",
@@ -34,7 +40,6 @@
     "adm-zip": "^0.5.16",
     "commander": "^13.1.0",
     "fingerprint-generator": "^2.1.69",
-    "got": "^14.4.7",
     "hpagent": "^1.2.0",
     "js-yaml": "^4.1.0",
     "language-tags": "^2.1.0",
@@ -48,7 +53,8 @@
   },
   "devDependencies": {
     "@types/node": "^22.16.3",
-    "rimraf": "^6.0.1"
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

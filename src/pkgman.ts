@@ -2,7 +2,6 @@ import { CONSTRAINTS } from './__version__.js';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as https from 'https';
 import { execSync } from 'child_process';
 import { PathLike } from 'fs';
 import {
@@ -18,7 +17,6 @@ import * as yaml from 'js-yaml';
 import ProgressBar from 'progress';
 import { Writable } from 'stream';
 import { HttpsProxyAgent } from 'hpagent';
-import got, { OptionsOfJSONResponseBody } from 'got';
 
 const ARCH_MAP: { [key: string]: string } = {
     'x64': 'x86_64',
@@ -40,7 +38,7 @@ if (!(process.platform in OS_MAP)) {
 export const OS_NAME: 'mac' | 'win' | 'lin' = OS_MAP[process.platform];
 
 export const INSTALL_DIR: PathLike = userCacheDir('camoufox');
-export const LOCAL_DATA: PathLike = path.join(import.meta?.dirname, '../data-files');
+export const LOCAL_DATA: PathLike = path.join(__dirname, '../data-files');
 export const PACKAGE_DATA: PathLike = path.join(process.cwd(), 'data-files');
 
 export const OS_ARCH_MATRIX: { [key: string]: string[] } = {
@@ -135,30 +133,26 @@ export class GitHubDownloader {
     }
 
     async getAsset(): Promise<any> {
-        let gotOptions: OptionsOfJSONResponseBody = {
+        let options: any = {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36'
             },
-            responseType: 'json'
         };
 
         // 如果有代理配置，设置代理agent
         if (this.proxy) {
-            gotOptions.agent = {
-                https: new HttpsProxyAgent({
-                    keepAlive: true,
-                    keepAliveMsecs: 1000,
-                    maxSockets: 256,
-                    maxFreeSockets: 256,
-                    scheduling: 'lifo',
-                    proxy: this.proxy
-                })
-            };
+            //如果是bun直接设置proxy，如果是nodejs则设置环境变量
+            //@ts-ignore
+            if (typeof Bun !== 'undefined') {
+                process.env.GLOBAL_AGENT_HTTP_PROXY = this.proxy;
+            } else {
+                options.proxy = this.proxy
+            }
         }
 
         try {
-            const response = await got.get(this.apiUrl, gotOptions);
-            const releases = response.body as unknown as any[];
+            const response = await fetch(this.apiUrl, options);
+            const releases = await response.json();
 
             for (const release of releases) {
                 for (const asset of release.assets) {
