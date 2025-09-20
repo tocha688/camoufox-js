@@ -408,7 +408,7 @@ export interface LaunchOptions {
     /** Use a specific WebGL vendor/renderer pair. Passed as a tuple of `[vendor, renderer]`. */
     webgl_config?: [string, string];
 
-    // 用户数据目录
+    /** Open using launchPersistentContext */
     data_dir?: string;
 
     /** Additional Firefox launch options. */
