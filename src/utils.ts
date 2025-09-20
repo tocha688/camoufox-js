@@ -209,9 +209,9 @@ function checkValidOS(os: string | string[]): void {
     if (!os.toLowerCase()) {
         throw new InvalidOS(`OS values must be lowercase: '${os}'`);
     }
-    if (!['windows', 'macos', 'linux'].includes(os)) {
-        throw new InvalidOS(`Camoufox does not support the OS: '${os}'`);
-    }
+    // if (!['windows', 'macos', 'linux'].includes(os)) {
+    //     throw new InvalidOS(`Camoufox does not support the OS: '${os}'`);
+    // }
 }
 
 function cleanLocals(data: Record<string, any>): Record<string, any> {
