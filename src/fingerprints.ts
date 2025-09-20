@@ -5,7 +5,7 @@ import { Fingerprint, FingerprintGenerator, FingerprintGeneratorOptions, ScreenF
 const BROWSERFORGE_DATA = loadYaml(join(LOCAL_DATA.toString(), 'browserforge.yml'));
 const FP_GENERATOR = new FingerprintGenerator({
     browsers: ['firefox'],
-    operatingSystems: ['linux', 'macos', 'windows'],
+    // operatingSystems: ['linux', 'macos', 'windows'],
 });
 
 function randrange(min: number, max: number): number {

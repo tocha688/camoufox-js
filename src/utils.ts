@@ -153,7 +153,7 @@ function determineUAOS(userAgent: string): 'mac' | 'win' | 'lin' {
     if (!parsedUA) {
         throw new Error("Could not determine OS from user agent");
     }
-    if (parsedUA.startsWith("Mac")) {
+    if (parsedUA.startsWith("Mac") || parsedUA.startsWith("macOS")) {
         return 'mac';
     }
     if (parsedUA.startsWith("Windows")) {
@@ -162,7 +162,7 @@ function determineUAOS(userAgent: string): 'mac' | 'win' | 'lin' {
     return 'lin';
 }
 
-function getScreenCons(headless?: boolean): Screen | null {
+function getScreenCons(headless?: boolean | "virtual"): Screen | null {
     if (headless === false) {
         return null;
     }
@@ -308,6 +308,7 @@ export interface LaunchOptions {
     /** Operating system to use for the fingerprint generation.
      * Can be "windows", "macos", "linux", or a list to randomly choose from.
      * Default: ["windows", "macos", "linux"]
+     * ["windows", "macos", "linux", "android", "ios"]
      */
     os?: string | string[];
 
@@ -371,7 +372,7 @@ export interface LaunchOptions {
     /** Whether to run the browser in headless mode. Defaults to `false`.
      * Note: On Linux, passing `headless='virtual'` will use Xvfb.
      */
-    headless?: boolean;
+    headless?: boolean | "virtual";
 
     /** Whether to enable running scripts in the main world.
      * To use this, prepend "mw:" to the script: `page.evaluate("mw:" + script)`.
@@ -732,6 +733,7 @@ export async function launchOptions({
             password: proxyUrl.password,
             bypass: typeof proxy === 'string' ? undefined : proxy.bypass,
         } : undefined,
+        //@ts-ignore
         "headless": headless,
         ...launch_options,
     };

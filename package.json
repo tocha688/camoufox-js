@@ -1,8 +1,9 @@
 {
   "name": "camoufox",
-  "version": "0.1.15",
+  "version": "0.1.17",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "tsup",
     "build:tsc": "rimraf dist && tsc",
@@ -10,11 +11,11 @@
   },
    "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
-  "bin": "dist/__main__.js",
+  "bin": "dist/__main__.cjs",
   "files": [
     "dist",
     "data-files"
